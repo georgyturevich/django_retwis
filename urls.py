@@ -5,7 +5,8 @@ from django.conf.urls.defaults import *
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-    (r'^$', 'retwis.views.index')
+    (r'^$', 'retwis.views.index'),
+    (r'^timeline/$', 'retwis.views.timeline')
     # Example:
     # (r'^django_retwis/', include('django_retwis.foo.urls')),
 

@@ -2,7 +2,7 @@ from django.shortcuts import render_to_response
 
 import redis
 
-def index(request):
+def timeline(request):
     r = redis.Redis()
     usernames = r.sort('global:users', get='uid:*:username', desc=True, start=0, num=10)
     posts_ids = r.lrange('global:timeline', 0, 50)
@@ -20,4 +20,7 @@ def index(request):
         })
 
     tpl_vars = {'usernames': usernames, 'posts': posts}
-    return render_to_response('index.html', tpl_vars)
+    return render_to_response('timeline.html', tpl_vars)
+
+def index(request):
+    return render_to_response('index.html')
