@@ -1,3 +1,6 @@
+{% extends "base_layout.html" %}
+
+{% block content %}
 <h1>Last users</h1>
 {% if usernames %}
     <ul>
@@ -19,3 +22,4 @@
 {% else %}
     No posts
 {% endif %}
+{% endblock %}

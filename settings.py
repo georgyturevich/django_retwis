@@ -95,3 +95,6 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'retwis',
 )
+
+# @todo How to avoide abs path?
+STYLES_DIR = '/var/www/django_retwis/styles/'
