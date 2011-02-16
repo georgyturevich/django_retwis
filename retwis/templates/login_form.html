@@ -1,0 +1,10 @@
+{% if login_form.errors %}
+    <div style="color:red">{{ login_form.errors }}</div>
+{% endif %}
+
+<form action="/" method="post">
+    <table>
+        {{ login_form.as_table }}
+        <tr><td colspan="2" align="right"><input type="submit" name="login" value="Login"></td></tr>
+    </table>
+</form>

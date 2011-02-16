@@ -1,7 +1,6 @@
 from django.shortcuts import render_to_response
-from django.utils.translation import ugettext
-from django.contrib import messages
-from forms import RegisterForm
+from django.template.context import Context, RequestContext, get_standard_processors
+from forms import RegisterForm, LoginForm
 import redis
 from django.http import HttpResponseRedirect
 
@@ -26,7 +25,7 @@ def timeline(request):
     return render_to_response('timeline.html', tpl_vars)
 
 def index(request):
-    if 'username' in request.POST:
+    if 'create' in request.POST:
         register_form = RegisterForm(request.POST)
         if register_form.is_valid():
             register_form.save()
@@ -34,10 +33,19 @@ def index(request):
     else:
         register_form = RegisterForm()
 
+    if 'login' in request.POST:
+        login_form = LoginForm(request.POST)
+        if login_form.is_valid():
+            response = HttpResponseRedirect('/?succes_login=1')
+            login_form.login(response)
+
+            return response
+    else:
+        login_form = LoginForm()
+
     succes_register = 0
     if 'succes_register' in request.GET and request.GET['succes_register']:
         succes_register = 1
 
-    tpl_vars = {'register_form': register_form, 'succes_register': succes_register}
-
-    return render_to_response('index.html', tpl_vars)
+    tpl_vars = {'register_form': register_form, 'succes_register': succes_register, 'login_form': login_form}
+    return render_to_response('index.html', tpl_vars, context_instance=RequestContext(request))

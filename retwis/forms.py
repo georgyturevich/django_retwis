@@ -49,6 +49,36 @@ class RegisterForm(forms.Form):
         # Manage a Set with all the users, may be userful in the future
         r.sadd("global:users", user_id)
 
+class LoginForm(forms.Form):
+    username = forms.CharField(max_length=50)
+    password = forms.CharField(max_length=50, widget=forms.PasswordInput)
+
+    user_id = 0
+
+    def clean_password(self):
+        r = RedisLink.factory()
+
+        username = self.cleaned_data["username"]
+        password = self.cleaned_data["password"]
+
+        user_id = r.get('username:%s:id' % username)
+        correct_password = r.get('uid:%s:password' % user_id)
+        if password != correct_password:
+            raise forms.ValidationError(_("Password or user are incorrect"))
+
+        self.user_id = user_id
+
+        return password
+
+    def login(self, response):
+        r = RedisLink.factory()
+
+        authsecret = getrand()
+        r.set("uid:%s:auth" % self.user_id, authsecret)
+        r.set("auth:%s" % authsecret, self.user_id)
+
+        response.set_cookie('auth', authsecret, 3600)
+
 def getrand():
     # @todo Use normal some rand() function :)
     fd = open("/dev/urandom")

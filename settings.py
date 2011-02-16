@@ -73,6 +73,7 @@ MIDDLEWARE_CLASSES = (
     #'django.middleware.csrf.CsrfViewMiddleware',
     #'django.contrib.auth.middleware.AuthenticationMiddleware',
     #'django.contrib.messages.middleware.MessageMiddleware',
+    'retwis.models.AuthenticationMiddleware'
 )
 
 ROOT_URLCONF = 'urls'
@@ -98,3 +99,5 @@ INSTALLED_APPS = (
 
 # @todo How to avoide abs path?
 STYLES_DIR = '/var/www/django_retwis/styles/'
+
+TEMPLATE_CONTEXT_PROCESSORS = ('django.core.context_processors.request', )
