@@ -16,18 +16,37 @@ class AuthenticationMiddleware(object):
         user_id = 0
         username = ''
         if 'auth' in request.COOKIES:
-            r = RedisLink.factory()
-
-            check_user_id = r.get('auth:%s' % request.COOKIES['auth'])
-            correct_auth_secret = r.get('uid:%s:auth' % check_user_id)
-
-            if correct_auth_secret == request.COOKIES['auth']:
+            check_user_id = check_auth_secret(request.COOKIES['auth'])
+            if check_user_id:
                 user_id = check_user_id
+                r = RedisLink.factory()
                 username = r.get('uid:%s:username' % user_id)
 
         request.user = User(user_id, username)
 
         return None
+
+def check_auth_secret(auth_secret):
+    r = RedisLink.factory()
+    check_user_id = r.get('auth:%s' % auth_secret)
+    correct_auth_secret = r.get('uid:%s:auth' % check_user_id)
+
+    if correct_auth_secret == auth_secret:
+        return check_user_id
+    else:
+        return False
+
+def logout(request):
+    if not 'auth' in request.COOKIES:
+        return
+
+    user_id = check_auth_secret(request.COOKIES['auth'])
+    if user_id:
+        r = RedisLink.factory()
+        r.delete('auth:%s' % request.COOKIES['auth'])
+        r.delete('uid:%s:auth' % user_id)
+
+    return None
 
 
 class User(object):

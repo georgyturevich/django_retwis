@@ -1,11 +1,17 @@
 from django.shortcuts import render_to_response
 from django.template.context import Context, RequestContext, get_standard_processors
 from forms import RegisterForm, LoginForm
-import redis
 from django.http import HttpResponseRedirect
+from retwis.models import RedisLink
+from models import logout as model_logout
+
+def logout(request):
+    model_logout(request)
+    return HttpResponseRedirect('/')
 
 def timeline(request):
-    r = redis.Redis()
+    r = RedisLink.factory()
+
     usernames = r.sort('global:users', get='uid:*:username', desc=True, start=0, num=10)
     posts_ids = r.lrange('global:timeline', 0, 50)
 
@@ -22,7 +28,7 @@ def timeline(request):
         })
 
     tpl_vars = {'usernames': usernames, 'posts': posts}
-    return render_to_response('timeline.html', tpl_vars)
+    return render_to_response('timeline.html', tpl_vars, context_instance=RequestContext(request))
 
 def index(request):
     if 'create' in request.POST:
