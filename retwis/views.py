@@ -2,7 +2,8 @@ from django.shortcuts import render_to_response
 from django.template.context import Context, RequestContext, get_standard_processors
 from forms import RegisterForm, LoginForm
 from django.http import HttpResponseRedirect
-from retwis.models import RedisLink
+from retwis.forms import PostForm
+from retwis.models import RedisLink, get_user_posts
 from models import logout as model_logout
 
 def logout(request):
@@ -49,9 +50,25 @@ def index(request):
     else:
         login_form = LoginForm()
 
+    if 'post' in request.POST:
+        post_form = PostForm(request.POST)
+        if post_form.is_valid():
+            post_form.save(request)
+            return HttpResponseRedirect('/?succes_post=1')
+    else:
+        post_form = PostForm()
+
     succes_register = 0
     if 'succes_register' in request.GET and request.GET['succes_register']:
         succes_register = 1
 
-    tpl_vars = {'register_form': register_form, 'succes_register': succes_register, 'login_form': login_form}
+    posts = get_user_posts(request.user.id, 0, 50)
+
+    tpl_vars = {
+        'register_form': register_form,
+        'succes_register': succes_register,
+        'login_form': login_form,
+        'post_form': post_form,
+        'posts': posts
+    }
     return render_to_response('index.html', tpl_vars, context_instance=RequestContext(request))

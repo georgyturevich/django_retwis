@@ -1,7 +1,7 @@
 {% extends "base_layout.html" %}
 {% block content %}
+{% if not request.user.is_authenticated %}
 <div id="welcomebox">
-    {% if not request.user.is_authenticated %}
         <div id="registerbox">
         <h2>Register!</h2>
         <b>Want to try Retwis? Create an account!</b>
@@ -9,7 +9,6 @@
         <h2>Already registered? Login here</h2>
         {% include 'login_form.html' %}
         </div>
-    {% endif %}
     Hello! Retwis is a very simple clone of <a href="http://twitter.com">Twitter</a>, as a demo for the <a href="http://redis.io">Redis</a> key-value database and <a href="http://docs.djangoproject.com">Django - Python framework</a>. Key points:
     <ul>
     <li>Redis is a key-value DB, and it is <b>the only DB used</b> by this application, no MySQL or alike at all.</li>
@@ -18,4 +17,14 @@
     <li>PHP and the Redis server communicate using the PHP Redis library client written by Ludovico Mangocavallo and included inside the Redis tar.gz distribution.
     </ul>
 </div>
+{% else %}
+    <div id="postform">
+        {% include 'post_form.html' %}
+        <div id="homeinfobox">
+            999 followers<br>
+            666 following<br>
+        </div>
+        {% include 'posts.html' %}
+    </div>
+{% endif %}
 {% endblock %}

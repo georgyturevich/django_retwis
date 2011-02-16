@@ -1,4 +1,5 @@
 from hashlib import md5
+from time import time
 from models import RedisLink
 from django import forms
 from django.utils.translation import ugettext_lazy as _
@@ -78,6 +79,31 @@ class LoginForm(forms.Form):
         r.set("auth:%s" % authsecret, self.user_id)
 
         response.set_cookie('auth', authsecret, 3600)
+
+        return None
+
+class PostForm(forms.Form):
+    status = forms.CharField(max_length=140, widget=forms.Textarea({'cols': 70, 'rows': 3}))
+
+    def clean_status(self):
+        status = self.cleaned_data['status']
+
+        status = status.replace('\n'," ")
+        status = status.replace('|'," ")
+
+        return status
+
+    def save(self, request):
+        if not request.user.id:
+            return
+
+        r = RedisLink.factory()
+        postid = r.incr("global:nextPostId")
+
+        post = "%s|%s|%s" % (request.user.id , int(time()), self.cleaned_data['status'])
+        r.set('post:%s' % postid, post)
+
+        r.lpush("uid:%s:posts" % request.user.id, postid)
 
 def getrand():
     # @todo Use normal some rand() function :)

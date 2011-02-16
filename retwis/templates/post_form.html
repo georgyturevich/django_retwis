@@ -1,0 +1,15 @@
+{% if post_form.errors %}
+    <div style="color:red">{{ post_form.errors }}</div>
+{% endif %}
+<form method="POST" action="/">
+    {{ request.user.username }}, what you are doing?
+    <br>
+    <table>
+        <tr>
+            <td>{{ post_form.status }}</td>
+        </tr>
+        <tr>
+            <td align="right"><input type="submit" name="post" value="Update"></td>
+        </tr>
+    </table>
+</form>

@@ -1,3 +1,4 @@
+from django.utils.datetime_safe import datetime
 import redis
 
 #@todo is it correct use class attr for redis link? (Mulitithreading safe?)
@@ -48,6 +49,24 @@ def logout(request):
 
     return None
 
+def get_user_posts(user_id, start, count):
+    r = RedisLink.factory()
+    posts_ids = r.lrange('uid:%s:posts' % user_id, start, start + count)
+
+    user = User.fetch_one(user_id)
+    posts = []
+    for post_id in posts_ids:
+        post_str = r.get('post:%s' % post_id)
+        (user_id, create_time, status) = post_str.split('|')
+        posts.append({
+            'id': post_id,
+            'user_id': user_id,
+            'create_time': datetime.fromtimestamp(float(create_time)),
+            'status': status,
+            'user': user
+        })
+
+    return posts
 
 class User(object):
     id = None
@@ -62,3 +81,11 @@ class User(object):
             return True
         else:
             return False
+
+    @classmethod
+    def fetch_one(cls, user_id):
+        r = RedisLink.factory()
+
+        username = r.get('uid:%s:username' % user_id)
+
+        return cls(user_id, username)
