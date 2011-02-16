@@ -129,14 +129,14 @@ font-size:12px;
 
 #welcomebox{
     width:890px;
-    height:450px;
+    height:700px;
     padding-top:10px;
     position:relative;
     font-size:14px;
 }
 #registerbox{
     width:400px;
-    height:400px;
+    height:650px;
     background-color:#e3e8e4;
     float:right;
     padding:5px;
