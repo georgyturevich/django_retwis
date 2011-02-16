@@ -7,8 +7,7 @@ import settings
 
 urlpatterns = patterns('',
     (r'^$', 'retwis.views.index'),
-    (r'^timeline/$', 'retwis.views.timeline'),
-    (r'^register/$', 'retwis.views.register')
+    (r'^timeline/$', 'retwis.views.timeline')
     # Example:
     # (r'^django_retwis/', include('django_retwis.foo.urls')),
 
