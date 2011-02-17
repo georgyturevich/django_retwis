@@ -7,6 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 
 #@todo Is it possible to set form action and submit in form class?
 #@todo How to generate mulitple error messages for one field?
+from retwis.models import User
+
 class RegisterForm(forms.Form):
     username = forms.CharField(max_length=50)
     password = forms.CharField(max_length=50, widget=forms.PasswordInput)
@@ -100,10 +102,13 @@ class PostForm(forms.Form):
         r = RedisLink.factory()
         postid = r.incr("global:nextPostId")
 
-        post = "%s|%s|%s" % (request.user.id , int(time()), self.cleaned_data['status'])
+        post_create_time = int(time())
+        post = "%s|%s|%s" % (request.user.id , post_create_time, self.cleaned_data['status'])
         r.set('post:%s' % postid, post)
 
         r.lpush("uid:%s:posts" % request.user.id, postid)
+
+        request.user.add_to_followers_news(postid, post_create_time)
 
 def getrand():
     # @todo Use normal some rand() function :)
