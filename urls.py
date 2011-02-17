@@ -9,7 +9,9 @@ urlpatterns = patterns('',
     (r'^$', 'retwis.views.index'),
     (r'^timeline/$', 'retwis.views.timeline'),
     (r'^logout/$', 'retwis.views.logout'),
-    (r'^profile/(?P<username>.*)/$', 'retwis.views.profile')
+    (r'^profile/(?P<username>.+)/$', 'retwis.views.profile'),
+    (r'^follow/(?P<user_id>\d+)/$', 'retwis.views.follow'),
+    (r'^follow/(?P<stop>.+)/(?P<user_id>\d+)/$', 'retwis.views.follow')
     # Example:
     # (r'^django_retwis/', include('django_retwis.foo.urls')),
 

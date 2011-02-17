@@ -1,5 +1,14 @@
 {% extends "base_layout.html" %}
 {% block content %}
-    <h1>{{ username }}</h1>
+    <h1>{{ profile_user.username }}</h1>
+
+    {% if can_follow %}
+        {% if not is_following %}
+            <a href="/follow/{{ profile_user.id }}/" class="button">Follow</a>
+        {% else %}
+            <a href="/follow/stop/{{ profile_user.id }}/" class="button">Stop following</a>
+        {% endif %}
+    {% endif %}
+
     {% include 'posts.html' %}
 {% endblock %}

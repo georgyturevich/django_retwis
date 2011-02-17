@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response
 from django.template.context import Context, RequestContext, get_standard_processors
 from forms import RegisterForm, LoginForm
-from django.http import HttpResponseRedirect, HttpResponseNotFound
+from django.http import HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden
 from retwis.forms import PostForm
 from retwis.models import RedisLink, get_user_posts
 from models import User, logout as model_logout
@@ -11,14 +11,32 @@ def logout(request):
     return HttpResponseRedirect('/')
 
 def profile(request, username):
-    user = User.fetch_one_by_username(username)
-    if not user.id:
+    profile_user = User.fetch_one_by_username(username)
+    if not profile_user.id:
         return HttpResponseNotFound('User with this username (%s) not found' % username)
 
-    posts = get_user_posts(user.id, 0, -1)
+    posts = get_user_posts(profile_user.id, 0, -1)
 
-    tpl_vars = {'username': username, 'posts': posts}
+    can_follow = request.user.is_authenticated() and request.user.id != profile_user.id
+    is_following = can_follow and request.user.is_following(profile_user.id)
+
+    tpl_vars = {'profile_user': profile_user, 'posts': posts, 'can_follow': can_follow, 'is_following': is_following}
     return render_to_response('profile.html', tpl_vars, context_instance=RequestContext(request))
+
+def follow(request, user_id, stop = None):
+    if not request.user.is_authenticated():
+        return HttpResponseForbidden('You must authorize!')
+
+    follow_user = User.fetch_one(user_id)
+    if not follow_user.id:
+        return HttpResponseNotFound('User with this user id (%s) not found' % user_id)
+
+    if stop == 'stop':
+        request.user.stop_following(user_id)
+    else:
+        request.user.follow(user_id)
+
+    return HttpResponseRedirect('/profile/%s/?success_follow=1' % follow_user.username)
 
 def timeline(request):
     r = RedisLink.factory()
