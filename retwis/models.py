@@ -55,6 +55,12 @@ def get_user_posts(user_id, start, count):
 
     return get_posts_by_ids(posts_ids)
 
+def get_user_news(user_id, start, count):
+    r = RedisLink.factory()
+    posts_ids = r.zrevrange('uid:%s:news' % user_id, start, start + count)
+
+    return get_posts_by_ids(posts_ids)
+
 def get_posts_by_ids(posts_ids):
     r = RedisLink.factory()
 

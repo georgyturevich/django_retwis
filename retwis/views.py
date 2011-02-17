@@ -3,7 +3,7 @@ from django.template.context import Context, RequestContext, get_standard_proces
 from forms import RegisterForm, LoginForm
 from django.http import HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden
 from retwis.forms import PostForm
-from retwis.models import RedisLink, get_user_posts
+from retwis.models import RedisLink, get_user_posts, get_user_news
 from models import User, logout as model_logout
 
 def logout(request):
@@ -92,7 +92,7 @@ def index(request):
     if 'succes_register' in request.GET and request.GET['succes_register']:
         succes_register = 1
 
-    posts = get_user_posts(request.user.id, 0, -1)
+    posts = get_user_news(request.user.id, 0, -1)
 
     tpl_vars = {
         'register_form': register_form,
