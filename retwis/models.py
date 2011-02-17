@@ -89,3 +89,11 @@ class User(object):
         username = r.get('uid:%s:username' % user_id)
 
         return cls(user_id, username)
+
+    @classmethod
+    def fetch_one_by_username(cls, username):
+        r = RedisLink.factory()
+
+        user_id = r.get('username:%s:id' % username);
+
+        return cls(user_id, username)

@@ -8,7 +8,8 @@ import settings
 urlpatterns = patterns('',
     (r'^$', 'retwis.views.index'),
     (r'^timeline/$', 'retwis.views.timeline'),
-    (r'^logout/$', 'retwis.views.logout')
+    (r'^logout/$', 'retwis.views.logout'),
+    (r'^profile/(?P<username>.*)/$', 'retwis.views.profile')
     # Example:
     # (r'^django_retwis/', include('django_retwis.foo.urls')),
 

@@ -1,6 +1,6 @@
 {% for post in posts %}
     <div class="post">
-        <a href="" class="username">{{ post.user.username }}</a> {{ post.status }}<br>
+        <a href="/profile/{{ post.user.username }}/" class="username">{{ post.user.username }}</a> {{ post.status }}<br>
         <i>{{ post.create_time|date:"d.m.Y H:i:s" }}</i>
     </div>
 {% endfor %}

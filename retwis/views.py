@@ -1,14 +1,24 @@
 from django.shortcuts import render_to_response
 from django.template.context import Context, RequestContext, get_standard_processors
 from forms import RegisterForm, LoginForm
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseNotFound
 from retwis.forms import PostForm
 from retwis.models import RedisLink, get_user_posts
-from models import logout as model_logout
+from models import User, logout as model_logout
 
 def logout(request):
     model_logout(request)
     return HttpResponseRedirect('/')
+
+def profile(request, username):
+    user = User.fetch_one_by_username(username)
+    if not user.id:
+        return HttpResponseNotFound('User with this username (%s) not found' % username)
+
+    posts = get_user_posts(user.id, 0, -1)
+
+    tpl_vars = {'username': username, 'posts': posts}
+    return render_to_response('profile.html', tpl_vars, context_instance=RequestContext(request))
 
 def timeline(request):
     r = RedisLink.factory()
@@ -64,7 +74,7 @@ def index(request):
     if 'succes_register' in request.GET and request.GET['succes_register']:
         succes_register = 1
 
-    posts = get_user_posts(request.user.id, 0, 50)
+    posts = get_user_posts(request.user.id, 0, -1)
 
     tpl_vars = {
         'register_form': register_form,
