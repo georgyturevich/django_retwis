@@ -53,11 +53,24 @@ def get_user_posts(user_id, start, count):
     r = RedisLink.factory()
     posts_ids = r.lrange('uid:%s:posts' % user_id, start, start + count)
 
-    user = User.fetch_one(user_id)
+    return get_posts_by_ids(posts_ids)
+
+def get_posts_by_ids(posts_ids):
+    r = RedisLink.factory()
+
+    users_store = {}
+
     posts = []
     for post_id in posts_ids:
         post_str = r.get('post:%s' % post_id)
         (user_id, create_time, status) = post_str.split('|')
+
+        if user_id in users_store:
+            user = users_store[user_id]
+        else:
+            user = User.fetch_one(user_id)
+            users_store[user_id] = user
+
         posts.append({
             'id': post_id,
             'user_id': user_id,
