@@ -32,6 +32,8 @@ def timeline(request):
     return render_to_response('timeline.html', tpl_vars, context_instance=RequestContext(request))
 
 def index(request):
+
+    #@todo How to set form data without calling constructor?
     if 'create' in request.POST:
         register_form = RegisterForm(request.POST)
         if register_form.is_valid():
