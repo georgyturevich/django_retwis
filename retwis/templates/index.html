@@ -21,8 +21,8 @@
     <div id="postform">
         {% include 'post_form.html' %}
         <div id="homeinfobox">
-            999 followers<br>
-            666 following<br>
+            {{ request.user.count_followers }} followers<br>
+            {{ request.user.count_following }} following<br>
         </div>
         {% include 'posts.html' %}
     </div>

@@ -147,6 +147,14 @@ class User(object):
 
         return None
 
+    def count_followers(self):
+        r = RedisLink.factory()
+        return r.scard("uid:%s:followers" % self.id)
+
+    def count_following(self):
+        r = RedisLink.factory()
+        return r.scard("uid:%s:following" % self.id)
+
     @classmethod
     def fetch_one(cls, user_id):
         r = RedisLink.factory()
