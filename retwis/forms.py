@@ -108,7 +108,7 @@ class PostForm(forms.Form):
 
         r.lpush("uid:%s:posts" % request.user.id, postid)
 
-        request.user.add_to_followers_news(postid, post_create_time)
+        request.user.add_post_to_followers_news(postid, post_create_time)
 
 def getrand():
     # @todo Use normal some rand() function :)

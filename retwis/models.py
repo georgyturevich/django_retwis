@@ -145,7 +145,7 @@ class User(object):
         r = RedisLink.factory()
         return r.smembers('uid:%s:followers' % self.id)
 
-    def add_to_followers_news(self, post_id, post_create_time):
+    def add_post_to_followers_news(self, post_id, post_create_time):
         r = RedisLink.factory()
 
         follwers_ids = self.get_followers_ids()
