@@ -125,12 +125,16 @@ class User(object):
 
         return Post.get_posts_by_ids(posts_ids)
 
+    def __str__(self):
+        return "User: {id: %s, username: %s}" % (self.id, self.username)
 
     @classmethod
     def fetch_one(cls, user_id):
         r = RedisLink.factory()
 
         username = r.get('uid:%s:username' % user_id)
+        if not username:
+            user_id = 0
 
         return cls(user_id, username)
 
