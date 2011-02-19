@@ -2,7 +2,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from forms import RegisterForm, LoginForm, PostForm
 from django.http import HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden
-from models import User, Post, logout as model_logout, get_user_posts, get_user_news
+from models import User, Post, get_user_news
 
 def logout(request):
     if request.user.is_authenticated():
@@ -15,7 +15,7 @@ def profile(request, username):
     if not profile_user.id:
         return HttpResponseNotFound('User with this username (%s) not found' % username)
 
-    posts = get_user_posts(profile_user.id, 0, -1)
+    posts = profile_user.get_posts(0, -1)
 
     can_follow = request.user.is_authenticated() and request.user.id != profile_user.id
     is_following = can_follow and request.user.is_following(profile_user.id)

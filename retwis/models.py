@@ -29,12 +29,6 @@ class AuthenticationMiddleware(object):
 
         return None
 
-def get_user_posts(user_id, start, count):
-    r = RedisLink.factory()
-    posts_ids = r.lrange('uid:%s:posts' % user_id, start, start + count)
-
-    return Post.get_posts_by_ids(posts_ids)
-
 def get_user_news(user_id, start, count):
     r = RedisLink.factory()
     posts_ids = r.zrevrange('uid:%s:news' % user_id, start, start + count)
@@ -94,7 +88,7 @@ class User(object):
 
     def add_to_news_following_posts(self, follow_user_id):
         r = RedisLink.factory()
-        posts = get_user_posts(follow_user_id, 0, -1)
+        posts = User.fetch_one(follow_user_id).get_posts(0, -1)
 
         for post in posts:
             r.zadd('uid:%s:news' % self.id, post['id'], int(post['create_time'].strftime('%s')))
@@ -139,6 +133,12 @@ class User(object):
         authsecret = r.get('uid:%s:auth' % self.id)
         r.delete('auth:%s' % authsecret)
         r.delete('uid:%s:auth' % self.id)
+
+    def get_posts(self, start, count):
+        r = RedisLink.factory()
+        posts_ids = r.lrange('uid:%s:posts' % self.id, start, start + count)
+
+        return Post.get_posts_by_ids(posts_ids)
 
     @classmethod
     def fetch_one(cls, user_id):
