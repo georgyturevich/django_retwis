@@ -1,5 +1,4 @@
-from hashlib import md5
-from models import RedisLink, User, Post
+from models import User, Post
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
@@ -54,11 +53,7 @@ class LoginForm(forms.Form):
         return password
 
     def login(self, response):
-        r = RedisLink.factory()
-
-        authsecret = getrand()
-        r.set("uid:%s:auth" % self.user_id, authsecret)
-        r.set("auth:%s" % authsecret, self.user_id)
+        authsecret = User.fetch_one(self.user_id).create_auth()
 
         response.set_cookie('auth', authsecret, 3600)
 
@@ -80,10 +75,3 @@ class PostForm(forms.Form):
             return
 
         Post.add_post(request.user.id, self.cleaned_data['status'])
-
-def getrand():
-    # @todo Use normal some rand() function :)
-    fd = open("/dev/urandom")
-    data = fd.read(16)
-    fd.close()
-    return md5(data).hexdigest()

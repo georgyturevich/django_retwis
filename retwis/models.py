@@ -1,6 +1,7 @@
 from django.utils.datetime_safe import datetime
 from time import time
 import redis
+from hashlib import md5
 
 #@todo is it correct use class attr for redis link? (Mulitithreading safe?)
 class RedisLink(object):
@@ -171,6 +172,15 @@ class User(object):
         for follower_user_id in follwers_ids:
             r.zadd("uid:%s:news" % follower_user_id, post_id, post_create_time)
 
+    def create_auth(self):
+        r = RedisLink.factory()
+
+        authsecret = getrand()
+        r.set("uid:%s:auth" % self.id, authsecret)
+        r.set("auth:%s" % authsecret, self.id)
+
+        return authsecret
+
     @classmethod
     def fetch_one(cls, user_id):
         r = RedisLink.factory()
@@ -229,3 +239,10 @@ class Post(object):
         r.lpush("uid:%s:posts" % user_id, postid)
 
         User.fetch_one(user_id).add_post_to_followers_news(postid, create_time)
+
+def getrand():
+    # @todo Use normal some rand() function :)
+    fd = open("/dev/urandom")
+    data = fd.read(16)
+    fd.close()
+    return md5(data).hexdigest()
