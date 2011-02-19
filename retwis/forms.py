@@ -16,8 +16,7 @@ class RegisterForm(forms.Form):
     def clean_username(self):
         username = self.cleaned_data["username"]
 
-        r = RedisLink.factory()
-        if r.get("username:%s:id" % username):
+        if User.fetch_one_by_username(username):
             message = _("A user with that username (%(username)s) already exists.") % {'username': username}
             raise forms.ValidationError(message)
 
@@ -32,8 +31,6 @@ class RegisterForm(forms.Form):
         return password_again
 
     def save(self):
-        r = RedisLink.factory()
-
         username = self.cleaned_data["username"]
         password = self.cleaned_data["password"]
 
