@@ -1,5 +1,5 @@
 from django.shortcuts import render_to_response
-from django.template.context import Context, RequestContext, get_standard_processors
+from django.template.context import RequestContext
 from forms import RegisterForm, LoginForm, PostForm
 from django.http import HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden
 from models import User, logout as model_logout, RedisLink, get_user_posts, get_user_news
