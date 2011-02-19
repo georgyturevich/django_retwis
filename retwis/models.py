@@ -238,6 +238,9 @@ class Post(object):
 
         r.lpush("uid:%s:posts" % user_id, postid)
 
+        r.lpush("global:timeline", postid)
+        r.ltrim("global:timeline", 0, 1000)
+
         User.fetch_one(user_id).add_post_to_followers_news(postid, create_time)
 
     @staticmethod
