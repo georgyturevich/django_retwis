@@ -42,7 +42,7 @@ class User(object):
         r.sadd('uid:%s:following' % self.id, follow_user_id)
         r.sadd('uid:%s:followers' % follow_user_id, self.id)
 
-        self.__add_to_news_following_posts(follow_user_id)
+        self._add_to_news_following_posts(follow_user_id)
 
         return None
 
@@ -52,11 +52,11 @@ class User(object):
         r.srem('uid:%s:following' % self.id, follow_user_id)
         r.srem('uid:%s:followers' % follow_user_id, self.id)
 
-        self.__remove_from_news_following_posts(follow_user_id)
+        self._remove_from_news_following_posts(follow_user_id)
 
         return None
 
-    def __remove_from_news_following_posts(self, follow_user_id):
+    def _remove_from_news_following_posts(self, follow_user_id):
         r = RedisLink.factory()
         posts_ids = r.lrange('uid:%s:posts' % follow_user_id, 0, -1)
 
@@ -65,7 +65,7 @@ class User(object):
 
         return None
 
-    def __add_to_news_following_posts(self, follow_user_id):
+    def _add_to_news_following_posts(self, follow_user_id):
         r = RedisLink.factory()
         posts = User.fetch_one(follow_user_id).get_posts(0, -1)
 
@@ -82,14 +82,14 @@ class User(object):
         r = RedisLink.factory()
         return r.scard("uid:%s:following" % self.id)
 
-    def get_followers_ids(self):
+    def _get_followers_ids(self):
         r = RedisLink.factory()
         return r.smembers('uid:%s:followers' % self.id)
 
     def add_post_to_followers_news(self, post_id, post_create_time):
         r = RedisLink.factory()
 
-        follwers_ids = self.get_followers_ids()
+        follwers_ids = self._get_followers_ids()
 
         # Add the post to our own news too
         follwers_ids.add(self.id)
