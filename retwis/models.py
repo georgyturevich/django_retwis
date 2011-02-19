@@ -185,3 +185,18 @@ class User(object):
         user_id = r.get('username:%s:id' % username)
 
         return cls(user_id, username)
+
+    @classmethod
+    def create_new(cls, username, password):
+        r = RedisLink.factory()
+        user_id = r.incr("global:nextUserId")
+
+        r.set("username:%s:id" % username, user_id)
+
+        r.set("uid:%s:username" % user_id, username)
+        r.set("uid:%s:password" % user_id, password)
+
+        # Manage a Set with all the users, may be userful in the future
+        r.sadd("global:users", user_id)
+
+        return cls.fetch_one(user_id)

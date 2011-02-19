@@ -1,13 +1,12 @@
 from hashlib import md5
 from time import time
-from models import RedisLink
+from models import RedisLink, User
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-
 #@todo Is it possible to set form action and submit in form class?
 #@todo How to generate mulitple error messages for one field?
-from retwis.models import User
+
 
 class RegisterForm(forms.Form):
     username = forms.CharField(max_length=50)
@@ -38,15 +37,7 @@ class RegisterForm(forms.Form):
         username = self.cleaned_data["username"]
         password = self.cleaned_data["password"]
 
-        user_id = r.incr("global:nextUserId")
-
-        r.set("username:%s:id" % username, user_id)
-
-        r.set("uid:%s:username" % user_id, username)
-        r.set("uid:%s:password" % user_id, password)
-
-        # Manage a Set with all the users, may be userful in the future
-        r.sadd("global:users", user_id)
+        User.create_new(username, password)
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=50)
