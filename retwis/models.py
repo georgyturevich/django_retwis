@@ -14,21 +14,6 @@ class RedisLink(object):
 
         return cls.redis
 
-class AuthenticationMiddleware(object):
-    def process_request(self, request):
-        user_id = 0
-        username = ''
-        if 'auth' in request.COOKIES:
-            check_user_id = User.check_auth_secret(request.COOKIES['auth'])
-            if check_user_id:
-                user_id = check_user_id
-                r = RedisLink.factory()
-                username = r.get('uid:%s:username' % user_id)
-
-        request.user = User(user_id, username)
-
-        return None
-
 class User(object):
     id = None
     username = ''
