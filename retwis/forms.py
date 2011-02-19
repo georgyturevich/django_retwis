@@ -45,10 +45,6 @@ class RegisterForm(forms.Form):
         r.set("uid:%s:username" % user_id, username)
         r.set("uid:%s:password" % user_id, password)
 
-#        authsecret = getrand()
-#        r.set("uid:%s:auth" % user_id, authsecret)
-#        r.set("auth:%s" % authsecret, user_id)
-
         # Manage a Set with all the users, may be userful in the future
         r.sadd("global:users", user_id)
 
