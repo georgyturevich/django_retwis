@@ -42,7 +42,7 @@ class User(object):
         r.sadd('uid:%s:following' % self.id, follow_user_id)
         r.sadd('uid:%s:followers' % follow_user_id, self.id)
 
-        self.add_to_news_following_posts(follow_user_id)
+        self.__add_to_news_following_posts(follow_user_id)
 
         return None
 
@@ -52,11 +52,11 @@ class User(object):
         r.srem('uid:%s:following' % self.id, follow_user_id)
         r.srem('uid:%s:followers' % follow_user_id, self.id)
 
-        self.remove_from_news_following_posts(follow_user_id)
+        self.__remove_from_news_following_posts(follow_user_id)
 
         return None
 
-    def remove_from_news_following_posts(self, follow_user_id):
+    def __remove_from_news_following_posts(self, follow_user_id):
         r = RedisLink.factory()
         posts_ids = r.lrange('uid:%s:posts' % follow_user_id, 0, -1)
 
@@ -65,7 +65,7 @@ class User(object):
 
         return None
 
-    def add_to_news_following_posts(self, follow_user_id):
+    def __add_to_news_following_posts(self, follow_user_id):
         r = RedisLink.factory()
         posts = User.fetch_one(follow_user_id).get_posts(0, -1)
 
