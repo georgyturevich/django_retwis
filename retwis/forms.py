@@ -1,5 +1,4 @@
 from hashlib import md5
-from time import time
 from models import RedisLink, User, Post
 from django import forms
 from django.utils.translation import ugettext_lazy as _
