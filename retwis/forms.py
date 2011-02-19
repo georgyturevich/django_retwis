@@ -43,14 +43,11 @@ class LoginForm(forms.Form):
     user_id = 0
 
     def clean_password(self):
-        r = RedisLink.factory()
-
         username = self.cleaned_data["username"]
         password = self.cleaned_data["password"]
 
-        user_id = r.get('username:%s:id' % username)
-        correct_password = r.get('uid:%s:password' % user_id)
-        if password != correct_password:
+        user_id = User.check_password(username, password)
+        if not user_id:
             raise forms.ValidationError(_("Password or user are incorrect"))
 
         self.user_id = user_id

@@ -202,6 +202,16 @@ class User(object):
 
         return cls.fetch_one(user_id)
 
+    @classmethod
+    def check_password(cls, username, password):
+        r = RedisLink.factory()
+        user_id = r.get('username:%s:id' % username)
+        correct_password = r.get('uid:%s:password' % user_id)
+        if password == correct_password:
+            return user_id
+        else:
+            return False
+
 class Post(object):
     @classmethod
     def add_post(cls, user_id, status, create_time=None):
