@@ -240,6 +240,13 @@ class Post(object):
 
         User.fetch_one(user_id).add_post_to_followers_news(postid, create_time)
 
+    @staticmethod
+    def fetch_from_timeline(start, count):
+        r = RedisLink.factory()
+
+        posts_ids = r.lrange('global:timeline', start, count)
+        return get_posts_by_ids(posts_ids)
+
 def getrand():
     # @todo Use normal some rand() function :)
     fd = open("/dev/urandom")

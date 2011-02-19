@@ -2,7 +2,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from forms import RegisterForm, LoginForm, PostForm
 from django.http import HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden
-from models import User, logout as model_logout, RedisLink, get_user_posts, get_user_news
+from models import User, Post, logout as model_logout, RedisLink, get_user_posts, get_user_news, get_posts_by_ids
 
 def logout(request):
     model_logout(request)
@@ -40,20 +40,8 @@ def timeline(request):
     r = RedisLink.factory()
 
     usernames = r.sort('global:users', get='uid:*:username', desc=True, start=0, num=10)
-    posts_ids = r.lrange('global:timeline', 0, 50)
 
-    posts = []
-    for post_id in posts_ids:
-        post_str = r.get('post:%s' % post_id)
-        (user_id, create_time, message) = post_str.split('|')
-
-        username = r.get('uid:%s:username' % user_id)
-
-        posts.append({
-            'username': username,
-            'message': message
-        })
-
+    posts = Post.fetch_from_timeline(0, 50)
     tpl_vars = {'usernames': usernames, 'posts': posts}
     return render_to_response('timeline.html', tpl_vars, context_instance=RequestContext(request))
 

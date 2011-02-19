@@ -13,13 +13,6 @@
 {% endif %}
 
 <h1>Last posts</h1>
-{% if posts %}
-    <ul>
-    {% for post in posts %}
-        <li>{{ post.username }} - {{ post.message }}</li>
-    {% endfor %}
-    </ul>
-{% else %}
-    No posts
-{% endif %}
+{%  include "posts.html" %}
+
 {% endblock %}
