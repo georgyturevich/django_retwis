@@ -2,7 +2,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from forms import RegisterForm, LoginForm, PostForm
 from django.http import HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden
-from models import User, Post, logout as model_logout, RedisLink, get_user_posts, get_user_news, get_posts_by_ids
+from models import User, Post, logout as model_logout, get_user_posts, get_user_news
 
 def logout(request):
     model_logout(request)
@@ -37,10 +37,7 @@ def follow(request, user_id, stop = None):
     return HttpResponseRedirect('/profile/%s/?success_follow=1' % follow_user.username)
 
 def timeline(request):
-    r = RedisLink.factory()
-
-    usernames = r.sort('global:users', get='uid:*:username', desc=True, start=0, num=10)
-
+    usernames = User.get_all_usernames()
     posts = Post.fetch_from_timeline(0, 50)
     tpl_vars = {'usernames': usernames, 'posts': posts}
     return render_to_response('timeline.html', tpl_vars, context_instance=RequestContext(request))

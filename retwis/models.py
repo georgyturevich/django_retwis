@@ -222,6 +222,12 @@ class User(object):
         else:
             return False
 
+    @staticmethod
+    def get_all_usernames(start=0, num=10):
+        r = RedisLink.factory()
+
+        return r.sort('global:users', get='uid:*:username', desc=True, start=start, num=num)
+
 class Post(object):
     @classmethod
     def add_post(cls, user_id, status, create_time=None):

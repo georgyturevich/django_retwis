@@ -1,11 +1,11 @@
 {% extends "base_layout.html" %}
 
 {% block content %}
-<h1>Last users</h1>
+<h1>Last users (example of SORT command)</h1>
 {% if usernames %}
     <ul>
     {% for username in usernames %}
-        <li>{{ username }}</li>
+        <li><a href="/profile/{{ username }}/">{{ username }}</a></li>
     {% endfor %}
     </ul>
 {% else %}
