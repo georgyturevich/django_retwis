@@ -1,10 +1,8 @@
 from django.shortcuts import render_to_response
 from django.template.context import Context, RequestContext, get_standard_processors
-from forms import RegisterForm, LoginForm
+from forms import RegisterForm, LoginForm, PostForm
 from django.http import HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden
-from retwis.forms import PostForm
-from retwis.models import RedisLink, get_user_posts, get_user_news
-from models import User, logout as model_logout
+from models import User, logout as model_logout, RedisLink, get_user_posts, get_user_news
 
 def logout(request):
     model_logout(request)
