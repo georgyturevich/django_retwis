@@ -29,12 +29,6 @@ class AuthenticationMiddleware(object):
 
         return None
 
-def get_user_news(user_id, start, count):
-    r = RedisLink.factory()
-    posts_ids = r.zrevrange('uid:%s:news' % user_id, start, start + count)
-
-    return Post.get_posts_by_ids(posts_ids)
-
 class User(object):
     id = None
     username = ''
@@ -139,6 +133,13 @@ class User(object):
         posts_ids = r.lrange('uid:%s:posts' % self.id, start, start + count)
 
         return Post.get_posts_by_ids(posts_ids)
+
+    def get_news(self, start, count):
+        r = RedisLink.factory()
+        posts_ids = r.zrevrange('uid:%s:news' % self.id, start, start + count)
+
+        return Post.get_posts_by_ids(posts_ids)
+
 
     @classmethod
     def fetch_one(cls, user_id):

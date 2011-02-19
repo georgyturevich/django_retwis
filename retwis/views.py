@@ -2,7 +2,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from forms import RegisterForm, LoginForm, PostForm
 from django.http import HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden
-from models import User, Post, get_user_news
+from models import User, Post
 
 def logout(request):
     if request.user.is_authenticated():
@@ -77,7 +77,7 @@ def index(request):
     if 'succes_register' in request.GET and request.GET['succes_register']:
         succes_register = 1
 
-    posts = get_user_news(request.user.id, 0, -1)
+    posts = request.user.get_news(0, -1)
 
     tpl_vars = {
         'register_form': register_form,
