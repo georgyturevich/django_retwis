@@ -155,6 +155,21 @@ class User(object):
         r = RedisLink.factory()
         return r.scard("uid:%s:following" % self.id)
 
+    def get_followers_ids(self):
+        r = RedisLink.factory()
+        return r.smembers('uid:%s:followers' % self.id)
+
+    def add_post_to_followers_news(self, post_id, post_create_time):
+        r = RedisLink.factory()
+
+        follwers_ids = self.get_followers_ids()
+
+        # Add the post to our own news too
+        follwers_ids.add(self.id)
+
+        for follower_user_id in follwers_ids:
+            r.zadd("uid:%s:news" % follower_user_id, post_id, post_create_time)
+
     @classmethod
     def fetch_one(cls, user_id):
         r = RedisLink.factory()
@@ -170,18 +185,3 @@ class User(object):
         user_id = r.get('username:%s:id' % username)
 
         return cls(user_id, username)
-
-    def get_followers_ids(self):
-        r = RedisLink.factory()
-        return r.smembers('uid:%s:followers' % self.id)
-
-    def add_post_to_followers_news(self, post_id, post_create_time):
-        r = RedisLink.factory()
-
-        follwers_ids = self.get_followers_ids()
-
-        # Add the post to our own news too
-        follwers_ids.add(self.id)
-
-        for follower_user_id in follwers_ids:
-            r.zadd("uid:%s:news" % follower_user_id, post_id, post_create_time)
