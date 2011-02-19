@@ -1,6 +1,6 @@
 from hashlib import md5
 from time import time
-from models import RedisLink, User
+from models import RedisLink, User, Post
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
@@ -86,16 +86,7 @@ class PostForm(forms.Form):
         if not request.user.id:
             return
 
-        r = RedisLink.factory()
-        postid = r.incr("global:nextPostId")
-
-        post_create_time = int(time())
-        post = "%s|%s|%s" % (request.user.id , post_create_time, self.cleaned_data['status'])
-        r.set('post:%s' % postid, post)
-
-        r.lpush("uid:%s:posts" % request.user.id, postid)
-
-        request.user.add_post_to_followers_news(postid, post_create_time)
+        Post.add_post(request.user.id, self.cleaned_data['status'])
 
 def getrand():
     # @todo Use normal some rand() function :)

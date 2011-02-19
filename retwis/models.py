@@ -1,4 +1,5 @@
 from django.utils.datetime_safe import datetime
+from time import time
 import redis
 
 #@todo is it correct use class attr for redis link? (Mulitithreading safe?)
@@ -200,3 +201,21 @@ class User(object):
         r.sadd("global:users", user_id)
 
         return cls.fetch_one(user_id)
+
+class Post(object):
+    @classmethod
+    def add_post(cls, user_id, status, create_time=None):
+        r = RedisLink.factory()
+        postid = r.incr("global:nextPostId")
+
+        if not create_time:
+            create_time = time()
+
+        create_time = int(create_time)
+
+        post = "%s|%s|%s" % (user_id, create_time, status)
+        r.set('post:%s' % postid, post)
+
+        r.lpush("uid:%s:posts" % user_id, postid)
+
+        User.fetch_one(user_id).add_post_to_followers_news(postid, create_time)
