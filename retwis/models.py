@@ -33,39 +33,13 @@ def get_user_posts(user_id, start, count):
     r = RedisLink.factory()
     posts_ids = r.lrange('uid:%s:posts' % user_id, start, start + count)
 
-    return get_posts_by_ids(posts_ids)
+    return Post.get_posts_by_ids(posts_ids)
 
 def get_user_news(user_id, start, count):
     r = RedisLink.factory()
     posts_ids = r.zrevrange('uid:%s:news' % user_id, start, start + count)
 
-    return get_posts_by_ids(posts_ids)
-
-def get_posts_by_ids(posts_ids):
-    r = RedisLink.factory()
-
-    users_store = {}
-
-    posts = []
-    for post_id in posts_ids:
-        post_str = r.get('post:%s' % post_id)
-        (user_id, create_time, status) = post_str.split('|')
-
-        if user_id in users_store:
-            user = users_store[user_id]
-        else:
-            user = User.fetch_one(user_id)
-            users_store[user_id] = user
-
-        posts.append({
-            'id': post_id,
-            'user_id': user_id,
-            'create_time': datetime.fromtimestamp(float(create_time)),
-            'status': status,
-            'user': user
-        })
-
-    return posts
+    return Post.get_posts_by_ids(posts_ids)
 
 class User(object):
     id = None
@@ -245,12 +219,40 @@ class Post(object):
 
         User.fetch_one(user_id).add_post_to_followers_news(postid, create_time)
 
-    @staticmethod
-    def fetch_from_timeline(start, count):
+    @classmethod
+    def fetch_from_timeline(cls, start, count):
         r = RedisLink.factory()
 
         posts_ids = r.lrange('global:timeline', start, count)
-        return get_posts_by_ids(posts_ids)
+        return cls.get_posts_by_ids(posts_ids)
+
+    @classmethod
+    def get_posts_by_ids(cls, posts_ids):
+        r = RedisLink.factory()
+
+        users_store = {}
+
+        posts = []
+        for post_id in posts_ids:
+            post_str = r.get('post:%s' % post_id)
+            (user_id, create_time, status) = post_str.split('|')
+
+            if user_id in users_store:
+                user = users_store[user_id]
+            else:
+                user = User.fetch_one(user_id)
+                users_store[user_id] = user
+
+            # @todo Maybe this should by Post object?
+            posts.append({
+                'id': post_id,
+                'user_id': user_id,
+                'create_time': datetime.fromtimestamp(float(create_time)),
+                'status': status,
+                'user': user
+            })
+
+        return posts
 
 def getrand():
     # @todo Use normal some rand() function :)
