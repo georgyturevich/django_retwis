@@ -2,10 +2,12 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from forms import RegisterForm, LoginForm, PostForm
 from django.http import HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden
-from models import User, Post, logout as model_logout, get_user_posts, get_user_news
+from models import User, Post, get_user_posts, get_user_news
 
 def logout(request):
-    model_logout(request)
+    if request.user.is_authenticated():
+        request.user.destroy_auth()
+
     return HttpResponseRedirect('/')
 
 def profile(request, username):

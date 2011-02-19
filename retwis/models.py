@@ -19,7 +19,7 @@ class AuthenticationMiddleware(object):
         user_id = 0
         username = ''
         if 'auth' in request.COOKIES:
-            check_user_id = check_auth_secret(request.COOKIES['auth'])
+            check_user_id = User.check_auth_secret(request.COOKIES['auth'])
             if check_user_id:
                 user_id = check_user_id
                 r = RedisLink.factory()
@@ -28,28 +28,6 @@ class AuthenticationMiddleware(object):
         request.user = User(user_id, username)
 
         return None
-
-def check_auth_secret(auth_secret):
-    r = RedisLink.factory()
-    check_user_id = r.get('auth:%s' % auth_secret)
-    correct_auth_secret = r.get('uid:%s:auth' % check_user_id)
-
-    if correct_auth_secret == auth_secret:
-        return check_user_id
-    else:
-        return False
-
-def logout(request):
-    if not 'auth' in request.COOKIES:
-        return
-
-    user_id = check_auth_secret(request.COOKIES['auth'])
-    if user_id:
-        r = RedisLink.factory()
-        r.delete('auth:%s' % request.COOKIES['auth'])
-        r.delete('uid:%s:auth' % user_id)
-
-    return None
 
 def get_user_posts(user_id, start, count):
     r = RedisLink.factory()
@@ -181,6 +159,13 @@ class User(object):
 
         return authsecret
 
+    def destroy_auth(self):
+        r = RedisLink.factory()
+
+        authsecret = r.get('uid:%s:auth' % self.id)
+        r.delete('auth:%s' % authsecret)
+        r.delete('uid:%s:auth' % self.id)
+
     @classmethod
     def fetch_one(cls, user_id):
         r = RedisLink.factory()
@@ -227,6 +212,17 @@ class User(object):
         r = RedisLink.factory()
 
         return r.sort('global:users', get='uid:*:username', desc=True, start=start, num=num)
+
+    @staticmethod
+    def check_auth_secret(auth_secret):
+        r = RedisLink.factory()
+        check_user_id = r.get('auth:%s' % auth_secret)
+        correct_auth_secret = r.get('uid:%s:auth' % check_user_id)
+
+        if correct_auth_secret == auth_secret:
+            return check_user_id
+        else:
+            return False
 
 class Post(object):
     @classmethod
