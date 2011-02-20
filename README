@@ -1,0 +1,10 @@
+= About =
+Django-Retwis is a very simple Twitter clone written in PHP as example application of the
+Redis key-value database (http://redis.io) and Django - Python web framework (http://djangoproject.com)
+
+= Using =
+Run Django server
+$ python manager.py runserver
+
+Run tests
+$ python retwis/tests.py
