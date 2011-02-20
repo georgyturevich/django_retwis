@@ -19,7 +19,7 @@ class User(object):
     username = ''
 
     def __init__(self, id, username):
-        self.id = id
+        self.id = int(id)
         self.username = username
 
     def is_authenticated(self):
