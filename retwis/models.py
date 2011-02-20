@@ -188,6 +188,7 @@ class User(object):
         else:
             return False
 
+#@todo Refactoring. Is Post realy needs to be depend on User?
 class Post(object):
     @classmethod
     def add_post(cls, user_id, status, create_time=None):
