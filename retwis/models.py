@@ -157,6 +157,7 @@ class User(object):
         r.set("uid:%s:password" % user_id, password)
 
         # Manage a Set with all the users, may be userful in the future
+        # @todo Is this must be in User creating?
         r.sadd("global:users", user_id)
 
         return cls.fetch_one(user_id)
