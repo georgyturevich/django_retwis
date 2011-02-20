@@ -1,5 +1,6 @@
 import unittest
 from models import User, Post, RedisLink
+from time import time
 
 RedisLink.factory(db=15)
 
@@ -78,42 +79,97 @@ class TestUser(unittest.TestCase):
         self.assertEqual(1, users[3].count_following())
 
 
-    def add_post_to_followers_news(self):
-        pass
+    def test_add_post_to_followers_news(self):
+        users = self._mass_test_follow()
 
-    def create_auth(self):
-        pass
+        Post.add_post(users[1].id, "Test message!")
 
-    def destroy_auth(self):
-        pass
+        self.assertEqual('1', users[0].get_news(0, -1)[0]['id'])
+        self.assertEqual('1', users[2].get_news(0, -1)[0]['id'])
+        self.assertEqual('1', users[3].get_news(0, -1)[0]['id'])
 
-    def get_posts(self):
-        pass
+    def test_create_auth(self):
+        users = self._create_test_users()
 
-    def get_news(self):
-        pass
+        test_authsecret = users[0].create_auth()
+        check_user_id = User.check_auth_secret(test_authsecret)
 
-    def fetch_one(self):
-        pass
+        self.assertEqual(users[0].id, int(check_user_id))
 
-    def fetch_one_by_username(self):
-        pass
+    def test_destroy_auth(self):
+        users = self._create_test_users()
 
-    def check_password(self):
-        pass
+        test_authsecret = users[0].create_auth()
+        users[0].destroy_auth()
 
-    def get_all_usernames(self):
-        pass
+        self.assertFalse(User.check_auth_secret(test_authsecret))
 
-class TestPost(unittest.TestCase):
-    def add_post(self):
-        pass
+    def test_get_posts(self):
+        users = self._create_test_users()
 
-    def fetch_from_timeline(self):
-        pass
+        data = [
+            [users[0].id, 'Test message 1!'],
+            [users[0].id, 'Test message 2!'],
+            [users[0].id, 'Test message 3!']
+        ]
 
-    def get_posts_by_ids(self):
-        pass
+        for i, (test_user_id, test_status) in enumerate(data):
+            Post.add_post(test_user_id, test_status)
+
+        posts = users[0].get_posts(0, -1)
+
+        self.assertEqual(len(data), len(posts))
+
+        for i, post in enumerate(reversed(posts)):
+            self.assertEqual(data[i][0], post['user'].id)
+            self.assertEqual(data[i][1], post['status'])
+
+    def test_get_news(self):
+        users = self._mass_test_follow()
+
+        data = [
+            [users[1].id, 'Test message 1!'],
+            [users[1].id, 'Test message 2!'],
+            [users[1].id, 'Test message 3!'],
+            [users[2].id, 'Test message 1!'],
+            [users[2].id, 'Test message 2!']
+        ]
+
+        for i, (test_user_id, test_status) in enumerate(data):
+            Post.add_post(test_user_id, test_status)
+
+        self.assertEqual(5, len(users[0].get_news(0, -1)))
+        self.assertEqual(3, len(users[1].get_news(0, -1)))
+        self.assertEqual(5, len(users[2].get_news(0, -1)))
+        self.assertEqual(5, len(users[3].get_news(0, -1)))
+
+    def test_fetch_one(self):
+        User.create_new('test', 11111)
+
+        test_user = User.fetch_one(1)
+
+        self.assertEqual('test', test_user.username)
+
+    def test_fetch_one_by_username(self):
+        user = User.create_new('test', 11111)
+
+        test_user = User.fetch_one_by_username('test')
+
+        self.assertEqual(user.id, test_user.id)
+
+    def test_check_password(self):
+        user = User.create_new('test', '11111')
+
+        self.assertFalse(User.check_password('test', '22222'))
+        self.assertEqual(str(user.id), User.check_password('test', '11111'))
+
+    def test_get_all_usernames(self):
+        users = self._create_test_users()
+
+        all_usernames = User.get_all_usernames(0, -1)
+
+        for user in users:
+            self.assertTrue(user.username in all_usernames)
 
 if __name__ == '__main__':
     unittest.main()

@@ -211,6 +211,8 @@ class Post(object):
 
         User.fetch_one(user_id).add_post_to_followers_news(postid, create_time)
 
+        return postid
+
     @classmethod
     def fetch_from_timeline(cls, start, count):
         r = RedisLink.factory()
